@@ -13,6 +13,7 @@
 
 <script lang="ts">
 import { defineComponent, onMounted, reactive } from "vue";
+import * as signalR from "@microsoft/signalr";
 
 export default defineComponent({
 	props: {
@@ -46,7 +47,18 @@ export default defineComponent({
 
 		onMounted(() => {
 			console.log("dynamically update data ");
-			start(0);
+
+			// start(0);
+			// Test signal R connection
+			const connection = new signalR.HubConnectionBuilder()
+				.withUrl(`${process.env.VUE_APP_BACKENDURL}/api`)
+				.configureLogging(signalR.LogLevel.Information)
+				.build();
+			connection.on("newMessage", (message) => {
+				console.log(`new message arrived ${JSON.stringify(message)}`);
+				chart.series = message.data;
+			});
+			connection.start().catch(console.error);
 		});
 
 		const start = (counter: number) => {
