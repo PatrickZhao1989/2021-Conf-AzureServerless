@@ -1,6 +1,5 @@
 <template>
 	<h3>{{ state.title }}</h3>
-
 	<apexchart
 		width="500"
 		type="line"
@@ -8,7 +7,6 @@
 		:series="chart?.series"
 	></apexchart>
 
-	<button @click="updateData">Click me to update data</button>
 </template>
 
 <script lang="ts">
@@ -21,7 +19,7 @@ export default defineComponent({
 	},
 	setup(props, context) {
 		const state = reactive({
-			title: "Patric's demo",
+			title: "Patric's demo, watch the chart for over 5 seconds",
 		});
 		let chart = reactive({
 			options: {},
@@ -60,17 +58,6 @@ export default defineComponent({
 			});
 			connection.start().catch(console.error);
 		});
-
-		const start = (counter: number) => {
-			if (counter < 1000000000) {
-				setTimeout(function () {
-					counter++;
-					console.log(counter);
-					updateData();
-					start(counter);
-				}, 2000);
-			}
-		};
 
 		return { state, updateData, chart };
 	},
