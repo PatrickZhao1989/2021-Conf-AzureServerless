@@ -15,8 +15,11 @@ import * as signalR from "@microsoft/signalr";
 const generateData = (count: number, yrange: { min: number; max: number }) => {
 	var i = 0;
 	var series = [];
+	var now = new Date();
+
 	while (i < count) {
-		var x = (i + 1).toString();
+		now.setSeconds(now.getSeconds() + 10);
+		var x = now.toLocaleString();
 		var y =
 			Math.floor(Math.random() * (yrange.max - yrange.min + 1)) +
 			yrange.min;
@@ -37,19 +40,24 @@ export default defineComponent({
 		const state = reactive({
 			title: "Demo heatmap",
 		});
+		// Initial value
 		let chart = reactive({
 			options: {},
 			series: [
 				{
-					name: "Room 1",
+					name: "Tiger",
 					data: generateData(5, { min: 20, max: 60 }),
 				},
 				{
-					name: "Room 2",
+					name: "Elephant",
 					data: generateData(5, { min: 20, max: 60 }),
 				},
 				{
-					name: "Room 3",
+					name: "Leopad",
+					data: generateData(5, { min: 20, max: 60 }),
+				},
+				{
+					name: "Lion",
 					data: generateData(5, { min: 20, max: 60 }),
 				},
 			],
@@ -96,10 +104,6 @@ export default defineComponent({
 				dataLabels: {
 					enabled: false,
 				},
-				// xaxis: {
-				// 	type: "category",
-				// 	categories: ["13:00", "14:00", "15:00", "16:00", "17:00"],
-				// },
 				stroke: {
 					width: 1,
 				},
@@ -109,37 +113,69 @@ export default defineComponent({
 			},
 		});
 
-		const updateData = (): void => {
-			const max = 90;
-			const min = 20;
-			const newData0 = chart.series[0].data.map(() => {
-				return Math.floor(Math.random() * (max - min + 1)) + min;
+		/* Example
+        {
+            "timeStamp": "2021-09-18T13:11:50.015Z",
+            "deviceStats": [
+                {
+                    "name": "Tiger",
+                    "numberOfDetection": 11
+                },
+                {
+                    "name": "Elephant",
+                    "numberOfDetection": 16
+                }
+            ]
+        }
+*/
+		const parseData = (
+			messageData: {
+				timeStamp: string;
+				deviceStats: [
+					{
+						name: string;
+						numberOfDetection: number;
+					}
+				];
+			},
+			currentChartSeries: {
+				name: string;
+				data: {
+					x: string;
+					y: number;
+				}[];
+			}[]
+		): [] => {
+			currentChartSeries.forEach((i) => {
+				const room = messageData.deviceStats.find(
+					(x) => x.name === i.name
+				);
+				if (i.data.length > 5) i.data.shift();
+				i.data.push({
+					x: new Date(messageData.timeStamp).toLocaleString(),
+					y: room?.numberOfDetection ?? 0,
+				});
 			});
-			// chart.series[0].data = newData0;
 
-			const newData1 = chart.series[0].data.map(() => {
-				return Math.floor(Math.random() * (max - min + 1)) + min;
-			});
-			//chart.series[1].data = newData1;
+			return currentChartSeries as [];
 		};
 
-		// onMounted(() => {
-		// 	console.log("dynamically update data ");
+		onMounted(() => {
+			console.log("dynamically update data ");
 
-		// 	// start(0);
-		// 	// Test signal R connection
-		// 	const connection = new signalR.HubConnectionBuilder()
-		// 		.withUrl(`${process.env.VUE_APP_BACKENDURL}/api`)
-		// 		.configureLogging(signalR.LogLevel.Information)
-		// 		.build();
-		// 	connection.on("newMessage", (message) => {
-		// 		console.log(`new message arrived ${JSON.stringify(message)}`);
-		// 		chart.series = message.data;
-		// 	});
-		// 	connection.start().catch(console.error);
-		// });
+			// start(0);
+			// Test signal R connection
+			const connection = new signalR.HubConnectionBuilder()
+				.withUrl(`${process.env.VUE_APP_BACKENDURL}/api`)
+				.configureLogging(signalR.LogLevel.Information)
+				.build();
+			connection.on("newMessage", (message) => {
+				chart.series = parseData(message.data, chart.series);
+			});
+			connection.start().catch(console.error);
+		});
 
-		return { state, updateData, chart };
+		return { state, chart };
 	},
 });
 </script>
