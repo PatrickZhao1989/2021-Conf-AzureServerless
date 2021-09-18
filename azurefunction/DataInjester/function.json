@@ -1,0 +1,20 @@
+{
+	"bindings": [
+		{
+			"name": "myTimer",
+			"type": "timerTrigger",
+			"direction": "in",
+			"schedule": "*/10 * * * * *"
+		},
+		{
+			"name": "DeviceDetection",
+			"type": "cosmosDB",
+			"databaseName": "DemoServerlessConf",
+			"collectionName": "DeviceTrace",
+			"createIfNotExists": true,
+			"connectionStringSetting": "CosmosDbConnectionString",
+			"direction": "out"
+		}
+	],
+	"scriptFile": "../dist/DataInjester/index.js"
+}

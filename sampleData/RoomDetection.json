@@ -1,0 +1,22 @@
+[
+	{
+		"DeviceId": "1",
+		"DeviceName": "Tiger",
+		"NumberOfDetections": 20
+	},
+	{
+		"DeviceId": "2",
+		"DeviceName": "Dragon",
+		"NumberOfDetections": 34
+	},
+	{
+		"DeviceId": "3",
+		"DeviceName": "Turtle",
+		"NumberOfDetections": 66
+	},
+	{
+		"DeviceId": "4",
+		"DeviceName": "Lion",
+		"NumberOfDetections": 13
+	}
+]
